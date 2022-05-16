@@ -1,15 +1,18 @@
-mod parse;
-mod valid;
+mod passport;
+pub use passport::Passport;
 
 pub fn collect_passport_strings(s: &str) -> Vec<String> {
-  return s
-    .split("\n\n")
-    .map(|i| i.replace("\n", " ").trim().to_string())
-    .collect();
+  match s {
+    "" => vec![],
+    _ => s
+      .split("\n\n")
+      .map(|i| i.replace("\n", " ").trim().to_string())
+      .collect(),
+  }
 }
 
 pub fn valid_passport_string(s: &str) -> bool {
-  valid::is_valid(parse::parse(s))
+  Passport::from(s).is_valid()
 }
 
 #[cfg(test)]
