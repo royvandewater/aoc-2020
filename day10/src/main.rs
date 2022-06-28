@@ -14,5 +14,10 @@ fn main() {
         ones,
         threes,
         ones * threes
-    )
+    );
+
+    println!(
+        "Count of Combinations: {}",
+        adapter_counter.count_of_combinations()
+    );
 }

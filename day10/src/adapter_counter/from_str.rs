@@ -16,6 +16,9 @@ impl FromStr for AdapterCounter {
             })
             .collect::<Result<Vec<usize>, String>>()?;
 
+        if adapters.len() == 0 {
+            return Err("Length of adapters was 0".into());
+        }
         adapters.sort();
 
         Ok(AdapterCounter { adapters })
