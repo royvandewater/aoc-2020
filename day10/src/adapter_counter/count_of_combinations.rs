@@ -1,5 +1,7 @@
 use std::collections::VecDeque;
 
+use memoize::memoize;
+
 use super::AdapterCounter;
 
 impl AdapterCounter {
@@ -7,11 +9,12 @@ impl AdapterCounter {
         let goal = self.adapters.iter().max().unwrap() + 3;
         let adapters: VecDeque<usize> = self.adapters.clone().into();
 
-        count_of_combinations(goal, 0, &adapters)
+        count_of_combinations(goal, 0, adapters)
     }
 }
 
-fn count_of_combinations(goal: usize, acc: usize, adapters: &VecDeque<usize>) -> usize {
+#[memoize]
+fn count_of_combinations(goal: usize, acc: usize, adapters: VecDeque<usize>) -> usize {
     if adapters.len() == 0 {
         if goal - acc <= 3 {
             return 1;
@@ -27,7 +30,7 @@ fn count_of_combinations(goal: usize, acc: usize, adapters: &VecDeque<usize>) ->
             None => return sum,
             Some(adapter) => {
                 if adapter - acc <= 3 {
-                    sum += count_of_combinations(goal, adapter, &rest);
+                    sum += count_of_combinations(goal, adapter, rest.clone());
                     continue;
                 }
                 return sum;
