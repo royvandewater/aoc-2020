@@ -7,34 +7,21 @@ pub struct Waterfall {
 
 impl Waterfall {
     pub fn start_time(&self) -> usize {
-        let max = self.intervals.iter().max().unwrap_or(&1);
-        let index = self.intervals.iter().position(|i| i == max).unwrap();
+        let mut current = 0;
+        let mut step_size = 1;
 
-        let mut i = max - index;
-        loop {
-            if is_cascade(i, &self.intervals) {
-                return i;
+        for (offset, interval) in self.intervals.iter().enumerate() {
+            for t in (current..usize::MAX).step_by(step_size) {
+                if (t + offset) % interval == 0 {
+                    current = t;
+                    step_size *= interval;
+                    break;
+                }
             }
-            i += max;
         }
+
+        current
     }
-}
-
-fn is_cascade(time: usize, intervals: &Vec<usize>) -> bool {
-    let cloned = intervals.clone();
-    let mut cloned_iter = cloned.iter();
-
-    return match cloned_iter.next() {
-        None => true,
-        Some(first) => {
-            if time % first == 0 {
-                let rest: Vec<usize> = cloned_iter.cloned().collect();
-                return is_cascade(time + 1, &rest);
-            }
-
-            return false;
-        }
-    };
 }
 
 #[cfg(test)]
