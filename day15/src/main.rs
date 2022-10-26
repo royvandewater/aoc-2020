@@ -12,6 +12,9 @@ fn main() {
         .parse()
         .expect("could not parse input as NumberStream");
 
-    let nth = number_stream.nth(2019); // stage 1 asks for the 2020th number, but we are 0 indexed
+    let nth = number_stream.nth(2020);
     println!("Stage 1: {}", nth);
+
+    let nth = number_stream.nth(30000000);
+    println!("Stage 2: {}", nth);
 }
