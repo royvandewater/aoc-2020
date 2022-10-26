@@ -32,6 +32,7 @@ impl TryFrom<u64> for Digit {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct Mask([Digit; 36]);
 
 impl Mask {
@@ -42,6 +43,12 @@ impl Mask {
 
     pub fn iter(&self) -> Iter<Digit> {
         self.0.iter()
+    }
+}
+
+impl Into<[Digit; 36]> for Mask {
+    fn into(self) -> [Digit; 36] {
+        self.0
     }
 }
 

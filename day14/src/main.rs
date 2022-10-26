@@ -11,5 +11,6 @@ fn main() {
     let mut program: Program = input.parse().expect("could not parse input as Program");
 
     program.run();
-    println!("Sum: {}", program.sequence_sum());
+    println!("Stage 1: {}", program.stage1_sum());
+    println!("Stage 2: {}", program.stage2_sum());
 }
