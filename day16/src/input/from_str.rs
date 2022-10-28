@@ -57,6 +57,7 @@ fn parse_rule(input: &str) -> Result<Rule, String> {
     Ok(Rule {
         label: label.into(),
         ranges,
+        position: None,
     })
 }
 
@@ -69,7 +70,7 @@ fn parse_range(input: &str) -> Result<Range<usize>, String> {
     let start =
         usize::from_str(start_str).map_err(|e| format!("Failed to parse start of range: {}", e))?;
     let end =
-        usize::from_str(end_str).map_err(|e| format!("Failed to parse end of range: {}", e))?;
+        1 + usize::from_str(end_str).map_err(|e| format!("Failed to parse end of range: {}", e))?;
 
     Ok(Range { start, end })
 }

@@ -7,6 +7,16 @@ pub fn error_rate(rules: &Vec<Rule>, nearby_tickets: &Vec<Ticket>) -> usize {
         .sum()
 }
 
+pub fn ticket_is_valid(rules: &Vec<Rule>, ticket: &Ticket) -> bool {
+    match ticket
+        .iter()
+        .find(|value| value_invalid_for_all_rules(*value, rules))
+    {
+        None => true,
+        Some(_) => false,
+    }
+}
+
 fn ticket_error_value(rules: &Vec<Rule>, ticket: &Ticket) -> usize {
     match ticket
         .iter()
@@ -21,6 +31,6 @@ fn value_invalid_for_all_rules(value: &usize, rules: &Vec<Rule>) -> bool {
     rules.iter().all(|rule| !follows_rule(rule, value))
 }
 
-fn follows_rule(rule: &Rule, value: &usize) -> bool {
+pub fn follows_rule(rule: &Rule, value: &usize) -> bool {
     rule.ranges.iter().any(|range| range.contains(value))
 }
