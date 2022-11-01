@@ -21,7 +21,7 @@ fn parse_line((row_number, line): (usize, &str)) -> HashMap<Position, bool> {
     line.trim()
         .chars()
         .enumerate()
-        .map(|(i, c)| ((i as isize, row_number as isize, 0), c == '#'))
+        .map(|(i, c)| ((i as isize, row_number as isize, 0, 0), c == '#'))
         .collect()
 }
 
@@ -54,10 +54,10 @@ mod tests {
         .parse()?;
 
         assert_eq!(4, sut.0.len());
-        assert_eq!(&false, sut.0.get(&(0, 0, 0)).unwrap());
-        assert_eq!(&true, sut.0.get(&(1, 0, 0)).unwrap());
-        assert_eq!(&false, sut.0.get(&(0, 1, 0)).unwrap());
-        assert_eq!(&false, sut.0.get(&(1, 1, 0)).unwrap());
+        assert_eq!(&false, sut.0.get(&(0, 0, 0, 0)).unwrap());
+        assert_eq!(&true, sut.0.get(&(1, 0, 0, 0)).unwrap());
+        assert_eq!(&false, sut.0.get(&(0, 1, 0, 0)).unwrap());
+        assert_eq!(&false, sut.0.get(&(1, 1, 0, 0)).unwrap());
         Ok(())
     }
 }

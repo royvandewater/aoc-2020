@@ -16,5 +16,5 @@ fn main() {
 
     let end_state: State = process_cycles(6, &begin_state);
     let end_count: usize = count_active_cubes(end_state);
-    println!("Stage 1: {}", end_count);
+    println!("Stage 2: {}", end_count);
 }

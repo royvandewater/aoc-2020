@@ -9,7 +9,8 @@ pub fn count_active_cubes(state: State) -> usize {
 pub fn process_cycles(number_of_cycles: i32, begin_state: &State) -> State {
     let mut state: State = begin_state.clone();
 
-    for _ in 0..number_of_cycles {
+    for i in 0..number_of_cycles {
+        println!("Cycle {}/{}", i + 1, number_of_cycles);
         state = process_cycle(&state);
     }
 
@@ -46,19 +47,21 @@ fn compute_active(position: &Position, state: &State) -> bool {
 }
 
 fn compute_neighbors(position: &Position) -> HashSet<Position> {
-    let &(x, y, z) = position;
+    let &(x, y, z, w) = position;
 
     let mut neighbors: HashSet<Position> = HashSet::new();
 
     for nx in (x - 1)..=(x + 1) {
         for ny in (y - 1)..=(y + 1) {
             for nz in (z - 1)..=(z + 1) {
-                neighbors.insert((nx, ny, nz));
+                for nw in (w - 1)..=(w + 1) {
+                    neighbors.insert((nx, ny, nz, nw));
+                }
             }
         }
     }
 
-    neighbors.remove(&(x, y, z));
+    neighbors.remove(&(x, y, z, w));
 
     return neighbors;
 }
@@ -89,7 +92,7 @@ mod tests {
 
         let end_state = process_cycles(6, &state);
         let active_cubes = count_active_cubes(end_state);
-        assert_eq!(112, active_cubes);
+        assert_eq!(848, active_cubes);
         Ok(())
     }
 }

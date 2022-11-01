@@ -2,12 +2,12 @@ use std::collections::HashMap;
 
 mod from_str;
 
-pub type Position = (isize, isize, isize);
+pub type Position = (isize, isize, isize, isize);
 #[derive(Clone)]
 pub struct State(HashMap<Position, bool>);
 
 impl State {
-    pub fn iter(&self) -> std::collections::hash_map::Iter<(isize, isize, isize), bool> {
+    pub fn iter(&self) -> std::collections::hash_map::Iter<Position, bool> {
         self.0.iter()
     }
 }
