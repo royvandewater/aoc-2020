@@ -1,20 +1,20 @@
 use std::str::FromStr;
 
-use crate::expression::Expression;
+use crate::formula::Formula;
 
-use super::ExpressionList;
+use super::FormulaList;
 
-impl FromStr for ExpressionList {
+impl FromStr for FormulaList {
     type Err = String;
 
     fn from_str(stream: &str) -> Result<Self, Self::Err> {
-        let value: Vec<Expression> = stream
+        let value: Vec<Formula> = stream
             .trim()
             .lines()
             .map(|line| line.parse())
-            .collect::<Result<Vec<Expression>, String>>()?;
+            .collect::<Result<Vec<Formula>, String>>()?;
 
-        Ok(ExpressionList(value))
+        Ok(FormulaList(value))
     }
 }
 
@@ -24,7 +24,7 @@ mod tests {
 
     #[test]
     fn test_empty() -> Result<(), String> {
-        let sut: ExpressionList = "".parse()?;
+        let sut: FormulaList = "".parse()?;
 
         assert_eq!(0, sut.0.len());
         Ok(())
