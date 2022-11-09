@@ -1,6 +1,8 @@
 use std::{collections::HashMap, str::FromStr};
 
-use super::{rule::Rule, Rules};
+use crate::rule::Rule;
+
+use super::Rules;
 
 impl FromStr for Rules {
     type Err = String;

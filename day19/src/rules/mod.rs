@@ -1,9 +1,9 @@
 use std::collections::{HashMap, HashSet};
 
 mod from_str;
-mod rule;
+mod into;
 
-use rule::Rule;
+use crate::rule::{Rule, RuleValue};
 
 pub struct Rules(HashMap<usize, Rule>);
 
@@ -20,8 +20,8 @@ impl Rules {
             .ok_or(format!("Failed to find rule with index: {}", index))?;
 
         match rule.value {
-            rule::RuleValue::String(ref s) => Ok(s == message),
-            rule::RuleValue::MatchOptions(ref options) => {
+            RuleValue::String(ref s) => Ok(s == message),
+            RuleValue::MatchOptions(ref options) => {
                 self.are_any_options_valid_for_message(options, message)
             }
         }
@@ -72,8 +72,8 @@ impl Rules {
             .ok_or(format!("Could not find rule: {}", index))?;
 
         match rule.value {
-            rule::RuleValue::String(ref s) => Ok(s.len()),
-            rule::RuleValue::MatchOptions(ref options) => {
+            RuleValue::String(ref s) => Ok(s.len()),
+            RuleValue::MatchOptions(ref options) => {
                 let sizes: HashSet<usize> = options
                     .iter()
                     .map(|options| options.iter().map(|option| self.size_of_rule(option)).sum())
