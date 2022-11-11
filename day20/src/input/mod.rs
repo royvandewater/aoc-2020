@@ -1,12 +1,27 @@
-use std::str::FromStr;
+mod item;
 
-pub struct Input;
+use std::{slice::Iter, str::FromStr};
+
+pub use self::item::Item;
+
+pub struct Input(Vec<Item>);
+
+impl Input {
+    pub(crate) fn iter(&self) -> Iter<Item> {
+        self.0.iter()
+    }
+}
 
 impl FromStr for Input {
     type Err = String;
 
-    fn from_str(_: &str) -> Result<Self, Self::Err> {
-        todo!();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let raw_items = s.trim().split("\n\n");
+        let items = raw_items
+            .map(|raw_item| raw_item.parse())
+            .collect::<Result<Vec<Item>, String>>()?;
+
+        Ok(Input(items))
     }
 }
 
