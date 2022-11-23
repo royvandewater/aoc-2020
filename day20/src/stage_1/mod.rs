@@ -11,19 +11,7 @@ pub struct Stage1 {
 
 impl Stage1 {
     pub fn answer(&self) -> Result<usize, String> {
-        let mut edges: HashSet<String> = HashSet::new();
-        let mut shared_edges: HashSet<String> = HashSet::new();
-
-        self.tiles
-            .iter()
-            .flat_map(|t| t.possible_edges())
-            .for_each(|edge| {
-                // There's a potential bug here where two identical edges on the same tile could potentially be considered shared
-                if edges.contains(&edge) {
-                    shared_edges.insert(edge.clone());
-                }
-                edges.insert(edge.clone());
-            });
+        let shared_edges = self.shared_edges();
 
         let corner_tile_ids = self
             .tiles
@@ -34,6 +22,22 @@ impl Stage1 {
         let product = corner_tile_ids.product();
 
         Ok(product)
+    }
+
+    fn shared_edges(&self) -> HashSet<String> {
+        let mut edges: HashSet<String> = HashSet::new();
+        let mut shared_edges: HashSet<String> = HashSet::new();
+        self.tiles
+            .iter()
+            .flat_map(|t| t.possible_edges())
+            .for_each(|edge| {
+                // There's a potential bug here where two identical edges on the same tile could potentially be considered shared
+                if edges.contains(&edge) {
+                    shared_edges.insert(edge.clone());
+                }
+                edges.insert(edge.clone());
+            });
+        shared_edges
     }
 }
 

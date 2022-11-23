@@ -30,8 +30,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_empty() -> Result<(), String> {
-        let _sut: Input = "".parse()?;
+    fn test_one_entry() -> Result<(), String> {
+        let _sut: Input = "
+            Tile 2:
+            .#
+            #.
+        "
+        .parse()?;
         Ok(())
     }
 }
