@@ -41,11 +41,7 @@ impl Tile {
     }
 
     pub fn flip_horizontally(&mut self) {
-        self.rotate_once();
-        self.flip_vertically();
-        self.rotate_once();
-        self.rotate_once();
-        self.rotate_once();
+        self.lines = self.lines.iter().map(|l| l.chars().rev().collect()).collect();
     }
 }
 
@@ -112,9 +108,9 @@ impl From<&Item> for Tile {
 
 fn get_edges(lines: &Vec<String>) -> [String; 4] {
     let north = lines.first().unwrap().to_string();
-    let south = lines.last().unwrap().to_string();
+    let south = lines.last().unwrap().chars().rev().collect::<String>();
 
-    let west = lines.iter().map(|l| l.chars().next().unwrap()).collect();
+    let west = lines.iter().map(|l| l.chars().next().unwrap()).rev().collect();
     let east = lines.iter().map(|l| l.chars().last().unwrap()).collect();
 
     [north, east, south, west]

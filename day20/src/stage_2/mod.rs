@@ -267,12 +267,14 @@ impl Stage2 {
     }
 
     fn flip_new_tile_until_it_faces_old_tile(&self, edge: &String, tile: &Tile, new_tile: &mut Tile) {
-        let edge = canonize_edge(edge);
+        let c_edge = canonize_edge(edge);
 
-        let existing_edge = tile.edges.iter().find(|e| canonize_edge(e) == edge).unwrap();
-        let new_edge = new_tile.edges.iter().find(|e| canonize_edge(e) == edge).unwrap();
+        let existing_edge = tile.edges.iter().find(|e| canonize_edge(e) == c_edge).unwrap();
+        let new_edge = new_tile.edges.iter().find(|e| canonize_edge(e) == c_edge).unwrap();
 
-        if existing_edge == new_edge {
+        let target_edge: String = existing_edge.chars().rev().collect();
+
+        if new_edge == &target_edge {
             return;
         }
 
@@ -280,15 +282,15 @@ impl Stage2 {
             .edges
             .iter()
             .enumerate()
-            .find_map(|(i, e)| match canonize_edge(e) == edge {
+            .find_map(|(i, e)| match canonize_edge(e) == c_edge {
                 true => Some(i),
                 false => None,
             })
             .unwrap();
 
         match direction_edge_faces_on_new {
-            0 | 2 => new_tile.flip_vertically(),
-            1 | 3 => new_tile.flip_horizontally(),
+            0 | 2 => new_tile.flip_horizontally(),
+            1 | 3 => new_tile.flip_vertically(),
             x => panic!("Unknown direction: {}", x),
         };
     }
@@ -562,15 +564,15 @@ mod tests {
     }
 
     #[test]
-    fn test_solve_simple_flip() {
+    fn test_solve_simple_flip_vertically() {
         let input_str = "
             Tile 1:
-            1#
+            1$
             .#
 
             Tile 2:
             #x
-            #2
+            $2
 
             Tile 3:
             .#
@@ -588,7 +590,54 @@ mod tests {
         sut.solve(&mut layout, &mut unplaced_tiles).expect("could not solve layout");
 
         let expected = "
-            1# #2
+            1$ $2
+            .# #x
+
+            .# #x
+            3= =4
+        "
+        .trim()
+        .lines()
+        .map(|l| l.trim())
+        .collect::<Vec<&str>>()
+        .join("\n");
+
+        let actual = layout_to_str(&layout);
+
+        println!("\nexpected: \n{}", expected);
+        println!("\nactual: \n{}", actual);
+
+        assert_eq!(expected, layout_to_str(&layout))
+    }
+
+    #[test]
+    fn test_solve_simple_flip_horizontally() {
+        let input_str = "
+            Tile 1:
+            1$
+            .#
+
+            Tile 2:
+            2$
+            x#
+
+            Tile 3:
+            .#
+            3=
+
+            Tile 4:
+            #x
+            =4
+        ";
+
+        let input: Input = input_str.parse().expect("could not parse input as Input");
+        let sut = Stage2::from(&input);
+        let (mut layout, mut unplaced_tiles) = sut.initialize_layout().expect("could not initialize layout");
+
+        sut.solve(&mut layout, &mut unplaced_tiles).expect("could not solve layout");
+
+        let expected = "
+            1$ $2
             .# #x
 
             .# #x
