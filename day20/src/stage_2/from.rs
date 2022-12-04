@@ -15,7 +15,7 @@ impl From<&Input> for Stage2 {
     }
 }
 
-fn find_shared_edges(tiles: &Vec<Tile>) -> HashMap<String, HashSet<Tile>> {
+fn find_shared_edges(tiles: &Vec<Tile>) -> HashMap<String, HashSet<usize>> {
     let unique_edges = get_all_unique_edges(tiles);
     let mut shared_edges = unique_edges.clone();
     shared_edges.retain(|_, tiles| tiles.len() > 1);
@@ -30,14 +30,14 @@ fn find_shared_edges(tiles: &Vec<Tile>) -> HashMap<String, HashSet<Tile>> {
     return shared_edges;
 }
 
-fn get_all_unique_edges(tiles: &Vec<Tile>) -> HashMap<String, HashSet<Tile>> {
-    let mut shared_edges: HashMap<String, HashSet<Tile>> = HashMap::new();
+fn get_all_unique_edges(tiles: &Vec<Tile>) -> HashMap<String, HashSet<usize>> {
+    let mut shared_edges: HashMap<String, HashSet<usize>> = HashMap::new();
 
     tiles.iter().for_each(|tile| {
         for edge in tile.possible_edges().iter() {
             let edge = canonize_edge(edge);
             let neighbors = shared_edges.entry(edge).or_default();
-            neighbors.insert(tile.clone());
+            neighbors.insert(tile.id);
         }
     });
 

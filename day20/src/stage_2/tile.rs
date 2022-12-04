@@ -16,11 +16,11 @@ impl Tile {
         self.edges.iter().map(canonize_edge).collect()
     }
 
-    pub fn rotate(&self, shared_edges: &HashSet<String>, edge_mask: [bool; 4]) -> Result<Tile, String> {
+    pub fn rotate_matched(&self, shared_edges: &HashSet<String>, edge_mask: [bool; 4]) -> Result<Tile, String> {
         let mut tile = self.clone();
 
         for _ in 0..4 {
-            tile = tile.rotate_once();
+            tile.rotate_once();
 
             if edge_mask_matches(&shared_edges, edge_mask, &tile.edges) {
                 return Ok(tile);
@@ -30,16 +30,26 @@ impl Tile {
         Err("Failed to find a rotation that matched the mask".into())
     }
 
-    pub fn rotate_once(&self) -> Tile {
-        let mut tile = self.clone();
-        tile.lines = rotate_lines(tile.lines);
-        tile.edges = get_edges(&tile.lines);
-        tile.rotations += 1;
-        tile
+    pub fn rotate_once(&mut self) {
+        self.lines = rotate_lines(&self.lines);
+        self.edges = get_edges(&self.lines);
+        self.rotations += 1;
+    }
+
+    pub fn flip_vertically(&mut self) {
+        self.lines = self.lines.iter().rev().cloned().collect();
+    }
+
+    pub fn flip_horizontally(&mut self) {
+        self.rotate_once();
+        self.flip_vertically();
+        self.rotate_once();
+        self.rotate_once();
+        self.rotate_once();
     }
 }
 
-fn rotate_lines(lines: Vec<String>) -> Vec<String> {
+fn rotate_lines(lines: &Vec<String>) -> Vec<String> {
     let transposed = transpose(&lines);
 
     let rotated = transposed.iter().map(|line| line.chars().rev().collect::<String>());
@@ -104,8 +114,8 @@ fn get_edges(lines: &Vec<String>) -> [String; 4] {
     let north = lines.first().unwrap().to_string();
     let south = lines.last().unwrap().to_string();
 
-    let east = lines.iter().map(|l| l.chars().next().unwrap()).collect();
-    let west = lines.iter().map(|l| l.chars().last().unwrap()).collect();
+    let west = lines.iter().map(|l| l.chars().next().unwrap()).collect();
+    let east = lines.iter().map(|l| l.chars().last().unwrap()).collect();
 
     [north, east, south, west]
 }
@@ -139,11 +149,12 @@ mod tests {
         "
         .parse()?;
 
-        let sut = Tile::from(&item);
+        let mut sut = Tile::from(&item);
+        sut.rotate_once();
 
         // 31
         // 42
-        assert_eq!(vec!["31", "42",], sut.rotate_once().lines);
+        assert_eq!(vec!["31", "42",], sut.lines);
         Ok(())
     }
 }
