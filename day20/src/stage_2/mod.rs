@@ -1,16 +1,17 @@
 mod from;
+mod image;
 mod tile;
 
 use std::collections::{HashMap, HashSet};
 
 use tile::Tile;
 
-use self::tile::canonize_edge;
+use self::{image::merge_image, tile::canonize_edge};
 
-type Position = [usize; 2];
+pub type Position = [usize; 2];
 
-type UnplacedTiles = HashMap<usize, Tile>;
-type Layout = HashMap<Position, Tile>;
+pub type UnplacedTiles = HashMap<usize, Tile>;
+pub type Layout = HashMap<Position, Tile>;
 
 pub struct Stage2 {
     tiles: Vec<Tile>,
@@ -23,7 +24,9 @@ impl Stage2 {
 
         self.solve(&mut layout, &mut unplaced_tiles)?;
 
-        todo!()
+        let mut image = merge_image(&layout);
+        image = replace_sea_monsters(&image);
+        Ok(count_rough_patches(&image))
     }
 
     fn initialize_layout(&self) -> Result<(Layout, UnplacedTiles), String> {
@@ -48,10 +51,6 @@ impl Stage2 {
     }
 
     fn solve(&self, layout: &mut Layout, unplaced_tiles: &mut UnplacedTiles) -> Result<(), String> {
-        println!("==============");
-        print_layout(&layout);
-        println!("==============");
-
         if unplaced_tiles.is_empty() {
             return Ok(());
         }
@@ -71,11 +70,6 @@ impl Stage2 {
         positions.sort();
 
         for position in positions.iter() {
-            println!(
-                "tile: {}, solving position: {:?}",
-                layout.get(position).unwrap().clone().id,
-                position
-            );
             self.populate_neighbors(layout, unplaced_tiles, position);
         }
     }
@@ -83,30 +77,10 @@ impl Stage2 {
     fn populate_neighbors(&self, layout: &mut Layout, unplaced_tiles: &mut UnplacedTiles, position: &Position) {
         let tile = layout.get(position).unwrap().clone();
 
-        let before = layout.len();
         self.populate_north_neighbor(layout, unplaced_tiles, position, &tile);
-        let after = layout.len();
-        if before != after {
-            println!("Found a north tile");
-        }
-        let before = layout.len();
         self.populate_east_neighbor(layout, unplaced_tiles, position, &tile);
-        let after = layout.len();
-        if before != after {
-            println!("Found an east tile");
-        }
-        let before = layout.len();
         self.populate_south_neighbor(layout, unplaced_tiles, position, &tile);
-        let after = layout.len();
-        if before != after {
-            println!("Found a south tile");
-        }
-        let before = layout.len();
         self.populate_west_neighbor(layout, unplaced_tiles, position, &tile);
-        let after = layout.len();
-        if before != after {
-            println!("Found a west tile");
-        }
     }
 
     fn populate_north_neighbor(
@@ -124,7 +98,6 @@ impl Stage2 {
 
         let north_position: Position = [x, y - 1];
         let north_edge = &tile.edges[0];
-        println!("north of tile: {} is edge: {:?}", tile.id, north_edge);
 
         self.insert_tile_matching_edge(layout, unplaced_tiles, tile, north_position, north_edge)
     }
@@ -140,7 +113,6 @@ impl Stage2 {
 
         let east_position: Position = [x + 1, y];
         let east_edge = &tile.edges[1];
-        println!("east of tile: {} is edge: {:?}", tile.id, east_edge);
 
         self.insert_tile_matching_edge(layout, unplaced_tiles, tile, east_position, east_edge)
     }
@@ -156,7 +128,6 @@ impl Stage2 {
 
         let south_position: Position = [x, y + 1];
         let south_edge = &tile.edges[2];
-        println!("south of tile: {} is edge: {:?}", tile.id, south_edge);
 
         self.insert_tile_matching_edge(layout, unplaced_tiles, tile, south_position, south_edge)
     }
@@ -176,7 +147,6 @@ impl Stage2 {
 
         let west_position: Position = [x - 1, y];
         let west_edge = &tile.edges[3];
-        println!("west of tile: {} is edge: {:?}", tile.id, west_edge);
 
         self.insert_tile_matching_edge(layout, unplaced_tiles, tile, west_position, west_edge)
     }
@@ -210,10 +180,6 @@ impl Stage2 {
 
                 let tile_id_to_insert = neighbors.iter().next().unwrap().clone();
                 let mut tile_to_insert = unplaced_tiles.remove(&tile_id_to_insert).unwrap_or_else(|| {
-                    println!("XXXXXXXXXXXXXX");
-                    print_layout(layout);
-                    println!("XXXXXXXXXXXXXX");
-
                     panic!(
                         "Tile with id {} was not in unplaced_tiles: {:?}\nPosition: {:?}\nLayout: {:?}",
                         tile_id_to_insert,
@@ -296,6 +262,14 @@ impl Stage2 {
     }
 }
 
+fn replace_sea_monsters(_image: &str) -> String {
+    todo!()
+}
+
+fn count_rough_patches(_image: &str) -> usize {
+    todo!()
+}
+
 fn edge_count_is_2(shared_edges: &HashMap<String, HashSet<usize>>, tile: &Tile) -> bool {
     let shared_edge_count = tile
         .edges
@@ -309,10 +283,10 @@ fn edge_count_is_2(shared_edges: &HashMap<String, HashSet<usize>>, tile: &Tile) 
     shared_edge_count == 2
 }
 
-fn layout_to_str(layout: &Layout) -> String {
+fn _layout_to_str(layout: &Layout) -> String {
     let mut output: Vec<String> = Vec::new();
 
-    let normalized = normalize_layout(layout);
+    let normalized = _normalize_layout(layout);
 
     let &max_x = normalized.iter().map(|([x, _y], _)| x).max().unwrap_or(&0);
     let &max_y = normalized.iter().map(|([_x, y], _)| y).max().unwrap_or(&0);
@@ -331,11 +305,11 @@ fn layout_to_str(layout: &Layout) -> String {
     return output.join("\n");
 }
 
-fn print_layout(layout: &Layout) {
-    println!("{}", layout_to_str(layout));
+fn _print_layout(layout: &Layout) {
+    println!("{}", _layout_to_str(layout));
 }
 
-fn normalize_layout(layout: &Layout) -> HashMap<Position, char> {
+fn _normalize_layout(layout: &Layout) -> HashMap<Position, char> {
     let &max_x = layout.iter().map(|([x, _y], _)| x).max().unwrap_or(&0);
     let &max_y = layout.iter().map(|([_x, y], _)| y).max().unwrap_or(&0);
 
@@ -414,12 +388,7 @@ mod tests {
         .collect::<Vec<&str>>()
         .join("\n");
 
-        let actual = layout_to_str(&layout);
-
-        println!("\nexpected: \n{}", expected);
-        println!("\nactual: \n{}", actual);
-
-        assert_eq!(expected, layout_to_str(&layout))
+        assert_eq!(expected, _layout_to_str(&layout))
     }
 
     #[test]
@@ -461,12 +430,7 @@ mod tests {
         .collect::<Vec<&str>>()
         .join("\n");
 
-        let actual = layout_to_str(&layout);
-
-        println!("\nexpected: \n{}", expected);
-        println!("\nactual: \n{}", actual);
-
-        assert_eq!(expected, layout_to_str(&layout))
+        assert_eq!(expected, _layout_to_str(&layout))
     }
 
     #[test]
@@ -508,12 +472,7 @@ mod tests {
         .collect::<Vec<&str>>()
         .join("\n");
 
-        let actual = layout_to_str(&layout);
-
-        println!("\nexpected: \n{}", expected);
-        println!("\nactual: \n{}", actual);
-
-        assert_eq!(expected, layout_to_str(&layout))
+        assert_eq!(expected, _layout_to_str(&layout))
     }
 
     #[test]
@@ -555,12 +514,7 @@ mod tests {
         .collect::<Vec<&str>>()
         .join("\n");
 
-        let actual = layout_to_str(&layout);
-
-        println!("\nexpected: \n{}", expected);
-        println!("\nactual: \n{}", actual);
-
-        assert_eq!(expected, layout_to_str(&layout))
+        assert_eq!(expected, _layout_to_str(&layout))
     }
 
     #[test]
@@ -602,12 +556,7 @@ mod tests {
         .collect::<Vec<&str>>()
         .join("\n");
 
-        let actual = layout_to_str(&layout);
-
-        println!("\nexpected: \n{}", expected);
-        println!("\nactual: \n{}", actual);
-
-        assert_eq!(expected, layout_to_str(&layout))
+        assert_eq!(expected, _layout_to_str(&layout))
     }
 
     #[test]
@@ -649,11 +598,6 @@ mod tests {
         .collect::<Vec<&str>>()
         .join("\n");
 
-        let actual = layout_to_str(&layout);
-
-        println!("\nexpected: \n{}", expected);
-        println!("\nactual: \n{}", actual);
-
-        assert_eq!(expected, layout_to_str(&layout))
+        assert_eq!(expected, _layout_to_str(&layout))
     }
 }

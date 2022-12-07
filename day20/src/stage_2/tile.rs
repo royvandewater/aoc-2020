@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, str::FromStr};
 
 use crate::input::Item;
 
@@ -114,6 +114,15 @@ fn get_edges(lines: &Vec<String>) -> [String; 4] {
     let east = lines.iter().map(|l| l.chars().last().unwrap()).collect();
 
     [north, east, south, west]
+}
+
+impl FromStr for Tile {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let item: Item = s.parse()?;
+        Ok(Tile::from(&item))
+    }
 }
 
 #[cfg(test)]
