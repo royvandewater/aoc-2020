@@ -11,37 +11,22 @@ pub fn merge_image(layout: &Layout) -> String {
 fn to_lines(trimmed: &Vec<Vec<Vec<String>>>) -> Vec<String> {
     let mut lines: Vec<String> = Vec::new();
 
-    let num_cols = count_cols(trimmed);
-    let num_rows = num_cols;
-
-    for y in 0..num_rows {
-        let mut line = "".to_string();
-
-        for x in 0..num_cols {
-            line.push(get_char(x, y, trimmed));
-        }
-
-        lines.push(line);
-    }
-
-    return lines;
-}
-
-fn count_cols(trimmed: &Vec<Vec<Vec<String>>>) -> usize {
-    let mut count = 0;
-
     let first_row_of_tiles = trimmed.first().unwrap();
+    let num_rows_per_tile = first_row_of_tiles.first().unwrap().len();
 
-    for tile_lines in first_row_of_tiles {
-        let line = tile_lines.first().unwrap();
-        count += line.len();
+    for row_of_tiles in trimmed.iter() {
+        for y in 0..num_rows_per_tile {
+            let mut line: String = "".to_string();
+
+            for tile in row_of_tiles {
+                line.push_str(tile.get(y).unwrap_or(&"".to_string()));
+            }
+
+            lines.push(line);
+        }
     }
 
-    return count;
-}
-
-fn get_char(x: usize, y: usize, trimmed: &Vec<Vec<Vec<String>>>) -> char {
-    todo!()
+    return lines.iter().filter(|s| !s.is_empty()).cloned().collect();
 }
 
 fn trim_tiles(normalized: &Vec<Vec<Vec<String>>>) -> Vec<Vec<Vec<String>>> {
