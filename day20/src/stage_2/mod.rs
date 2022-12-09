@@ -6,7 +6,10 @@ use std::collections::{HashMap, HashSet};
 
 use tile::Tile;
 
-use self::{image::merge_image, tile::canonize_edge};
+use self::{
+    image::merge_image,
+    tile::{canonize_edge, rotate_lines},
+};
 
 pub type Position = [usize; 2];
 
@@ -276,6 +279,7 @@ fn replace_sea_monsters(image: &str) -> String {
             image = flip_image_vertically(&image);
 
             for _ in 0..num_rotations {
+                image = rotate_image(&image);
                 image = replace_sea_monsters_permutation(&image);
             }
         }
@@ -294,6 +298,12 @@ fn flip_image_horizontally(image: &str) -> String {
 
 fn flip_image_vertically(image: &str) -> String {
     image.lines().rev().collect::<Vec<&str>>().join("\n")
+}
+
+fn rotate_image(image: &str) -> String {
+    let lines: Vec<String> = image.lines().map(|l| l.to_string()).collect();
+
+    rotate_lines(&lines).join("\n")
 }
 
 fn replace_sea_monsters_permutation(image: &str) -> String {
@@ -324,11 +334,6 @@ fn is_sea_monster_head([x, y]: [usize; 2], image: &str) -> bool {
         return false;
     }
 
-    // .#.#...#.###...#.##.O#..
-    if y == 2 && x == 20 {
-        println!("==================\n{}\n==================\n({}, {})\n\n", image, x, y);
-    }
-
     //                   #
     // #    ##    ##    ###
     // #  #  #  #  #  #
@@ -344,7 +349,7 @@ fn is_sea_monster_head([x, y]: [usize; 2], image: &str) -> bool {
     }
 
     let third_row: String = lines.get(y + 2).unwrap().chars().skip(x - 18).take(20).collect();
-    if !row_matches("#  #  #  #  #  #    ", third_row) {
+    if !row_matches(" #  #  #  #  #  #   ", third_row) {
         return false;
     }
 
@@ -359,8 +364,59 @@ fn row_matches(expected: &str, input: String) -> bool {
     })
 }
 
-fn replace_sea_dragon([_x, _y]: [usize; 2], _image: &str) -> String {
-    todo!()
+fn replace_sea_dragon([x, y]: [usize; 2], image: &str) -> String {
+    image
+        .lines()
+        .enumerate()
+        .map(|(i, line)| match () {
+            _ if i == y => replace_line_one(x, line),
+            _ if i == y + 1 => replace_line_two(x, line),
+            _ if i == y + 2 => replace_line_three(x, line),
+            _ => line.to_string(),
+        })
+        .collect::<Vec<String>>()
+        .join("\n")
+}
+
+fn replace_line_one(x: usize, line: &str) -> String {
+    let template = "                  # ";
+
+    replace_line(template, x, line)
+}
+
+fn replace_line_two(x: usize, line: &str) -> String {
+    let template = "#    ##    ##    ###";
+
+    replace_line(template, x, line)
+}
+
+fn replace_line_three(x: usize, line: &str) -> String {
+    let template = " #  #  #  #  #  #   ";
+
+    replace_line(template, x, line)
+}
+
+fn replace_line(template: &str, x: usize, line: &str) -> String {
+    let mut output: String = "".to_string();
+
+    let prefix: String = line.chars().take(x - 18).collect();
+    output.push_str(&prefix);
+
+    output.push_str(
+        &template
+            .chars()
+            .zip(line.chars().skip(x - 18))
+            .map(|(t, c)| match (t, c) {
+                ('#', _) => 'O',
+                _ => c,
+            })
+            .collect::<String>(),
+    );
+
+    let suffix: String = line.chars().skip(x + 2).collect();
+    output.push_str(&suffix);
+
+    return output;
 }
 
 fn count_rough_patches(image: &str) -> usize {

@@ -45,7 +45,7 @@ impl Tile {
     }
 }
 
-fn rotate_lines(lines: &Vec<String>) -> Vec<String> {
+pub fn rotate_lines(lines: &Vec<String>) -> Vec<String> {
     let transposed = transpose(&lines);
 
     let rotated = transposed.iter().map(|line| line.chars().rev().collect::<String>());

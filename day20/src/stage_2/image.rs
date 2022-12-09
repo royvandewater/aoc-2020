@@ -2,7 +2,6 @@ use super::Layout;
 
 pub fn merge_image(layout: &Layout) -> String {
     let normalized = normalize_layout(layout);
-    println!("merge_image:\n{}", to_lines(&normalized).join("\n"));
     let trimmed = trim_tiles(&normalized);
     let lines = to_lines(&trimmed);
 
@@ -33,35 +32,34 @@ fn to_lines(trimmed: &Vec<Vec<Vec<String>>>) -> Vec<String> {
 fn trim_tiles(normalized: &Vec<Vec<Vec<String>>>) -> Vec<Vec<Vec<String>>> {
     let mut trimmed: Vec<Vec<Vec<String>>> = Vec::new();
 
-    for (y, row) in normalized.iter().enumerate() {
-        let mut new_row: Vec<Vec<String>> = Vec::new();
+    for row in normalized.iter() {
+        let mut trimmed_row: Vec<Vec<String>> = Vec::new();
 
-        for (x, lines) in row.iter().enumerate() {
-            let mut lines = lines.clone();
-
-            if y > 0 {
-                lines = trim_first_line(lines);
-            }
-
-            if x > 0 {
-                lines = trim_first_char_of_each_line(lines);
-            }
-
-            new_row.push(lines);
+        for tile in row.iter() {
+            trimmed_row.push(trim_tile(tile));
         }
 
-        trimmed.push(new_row);
+        trimmed.push(trimmed_row);
     }
 
     return trimmed;
 }
 
-fn trim_first_line(lines: Vec<String>) -> Vec<String> {
-    lines.iter().skip(1).cloned().collect()
-}
+fn trim_tile(tile: &Vec<String>) -> Vec<String> {
+    let mut trimmed: Vec<String> = Vec::new();
 
-fn trim_first_char_of_each_line(lines: Vec<String>) -> Vec<String> {
-    lines.iter().map(|line| line.chars().skip(1).collect()).collect()
+    let mut rows = tile.iter();
+    rows.next(); // drop the first row
+    rows.next_back(); // drop the last row
+
+    for row in rows {
+        let mut row_iter = row.chars();
+        row_iter.next(); // drop the first char
+        row_iter.next_back(); // drop the last char
+        trimmed.push(row_iter.collect());
+    }
+
+    return trimmed;
 }
 
 fn normalize_layout(layout: &Layout) -> Vec<Vec<Vec<String>>> {
@@ -95,41 +93,43 @@ mod tests {
     fn test_merge_image() -> Result<(), String> {
         let tile_1: Tile = "
             Tile 1:
-            1$
-            .#
+            xxx
+            x1x
+            xxx
         "
         .parse()?;
 
         let tile_2: Tile = "
             Tile 2:
-            $2
-            #x
+            xxx
+            x2x
+            xxx
         "
         .parse()?;
 
         let tile_3: Tile = "
             Tile 3:
-            .#
-            3=
+            xxx
+            x3x
+            xxx
         "
         .parse()?;
 
         let tile_4: Tile = "
             Tile 4:
-            #x
-            =4
+            xxx
+            x4x
+            xxx
         "
         .parse()?;
 
         let layout = Layout::from([([0, 0], tile_1), ([1, 0], tile_2), ([0, 1], tile_3), ([1, 1], tile_4)]);
         let actual = merge_image(&layout);
-        let expected = cleanup(
-            "
-            1$2
-            .#x
-            3=4
-        ",
-        );
+        #[rustfmt::skip]
+        let expected = cleanup("
+            12
+            34
+        ");
 
         assert_eq!(expected, actual, "\nexpected:\n{}\n\nactual:\n{}\n\n", expected, actual);
         Ok(())
@@ -139,31 +139,27 @@ mod tests {
     fn test_3_by_3() {
         let input = parse_image_to_normalized(
             "
-            ... x.. x..
-            ... x.. x..
-            ... x.. x..
+            xxx xxx xxx
+            x.x x.x x.x
+            xxx xxx xxx
 
             xxx xxx xxx
-            ... x.. x..
-            ... x.. x..
+            x.x x.x x.x
+            xxx xxx xxx
 
             xxx xxx xxx
-            ... x.. x..
-            ... x.. x..
+            x.x x.x x.x
+            xxx xxx xxx
         ",
         );
 
         let expected = parse_image_to_normalized(
             "
-            ... .. ..
-            ... .. ..
-            ... .. ..
+            . . .
 
-            ... .. ..
-            ... .. ..
+            . . .
 
-            ... .. ..
-            ... .. ..
+            . . .
         ",
         );
 
@@ -179,7 +175,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_image_to_normalized_one_tile() {
+    fn metatest_parse_image_to_normalized_one_tile() {
         let actual = parse_image_to_normalized(
             "
           ...
