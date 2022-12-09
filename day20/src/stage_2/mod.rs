@@ -262,12 +262,109 @@ impl Stage2 {
     }
 }
 
-fn replace_sea_monsters(_image: &str) -> String {
+fn replace_sea_monsters(image: &str) -> String {
+    let mut image = image.to_string();
+
+    let num_horizontal_flips = 2;
+    let num_vertical_flips = 2;
+    let num_rotations = 4;
+
+    for _ in 0..num_horizontal_flips {
+        image = flip_image_horizontally(&image);
+
+        for _ in 0..num_vertical_flips {
+            image = flip_image_vertically(&image);
+
+            for _ in 0..num_rotations {
+                image = replace_sea_monsters_permutation(&image);
+            }
+        }
+    }
+
+    return image;
+}
+
+fn flip_image_horizontally(image: &str) -> String {
+    image
+        .lines()
+        .map(|line| line.chars().rev().collect::<String>())
+        .collect::<Vec<String>>()
+        .join("\n")
+}
+
+fn flip_image_vertically(image: &str) -> String {
+    image.lines().rev().collect::<Vec<&str>>().join("\n")
+}
+
+fn replace_sea_monsters_permutation(image: &str) -> String {
+    for (y, line) in image.lines().enumerate() {
+        for (x, c) in line.chars().enumerate() {
+            if c != '#' {
+                continue;
+            }
+
+            if is_sea_monster_head([x, y], &image) {
+                let new_image = replace_sea_dragon([x, y], &image);
+                return replace_sea_monsters_permutation(&new_image);
+            }
+        }
+    }
+
+    return image.to_string();
+}
+
+fn is_sea_monster_head([x, y]: [usize; 2], image: &str) -> bool {
+    let lines: Vec<&str> = image.lines().collect();
+
+    if x < 18 {
+        return false;
+    }
+
+    if y + 2 >= lines.len() {
+        return false;
+    }
+
+    // .#.#...#.###...#.##.O#..
+    if y == 2 && x == 20 {
+        println!("==================\n{}\n==================\n({}, {})\n\n", image, x, y);
+    }
+
+    //                   #
+    // #    ##    ##    ###
+    // #  #  #  #  #  #
+
+    let first_row: String = lines.get(y).unwrap().chars().skip(x - 18).take(20).collect();
+    if !row_matches("                  # ", first_row) {
+        return false;
+    }
+
+    let second_row: String = lines.get(y + 1).unwrap().chars().skip(x - 18).take(20).collect();
+    if !row_matches("#    ##    ##    ###", second_row) {
+        return false;
+    }
+
+    let third_row: String = lines.get(y + 2).unwrap().chars().skip(x - 18).take(20).collect();
+    if !row_matches("#  #  #  #  #  #    ", third_row) {
+        return false;
+    }
+
+    return true;
+}
+
+fn row_matches(expected: &str, input: String) -> bool {
+    expected.chars().zip(input.chars()).all(|(c1, c2)| match (c1, c2) {
+        ('#', '#') => true,
+        ('#', _) => false,
+        _ => true,
+    })
+}
+
+fn replace_sea_dragon([_x, _y]: [usize; 2], _image: &str) -> String {
     todo!()
 }
 
-fn count_rough_patches(_image: &str) -> usize {
-    todo!()
+fn count_rough_patches(image: &str) -> usize {
+    image.chars().filter(|&c| c == '#').count()
 }
 
 fn edge_count_is_2(shared_edges: &HashMap<String, HashSet<usize>>, tile: &Tile) -> bool {

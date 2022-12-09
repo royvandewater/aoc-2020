@@ -2,6 +2,7 @@ use super::Layout;
 
 pub fn merge_image(layout: &Layout) -> String {
     let normalized = normalize_layout(layout);
+    println!("merge_image:\n{}", to_lines(&normalized).join("\n"));
     let trimmed = trim_tiles(&normalized);
     let lines = to_lines(&trimmed);
 
@@ -85,6 +86,8 @@ fn normalize_layout(layout: &Layout) -> Vec<Vec<Vec<String>>> {
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
+
     use super::*;
     use crate::stage_2::{tile::Tile, Layout};
 
@@ -132,7 +135,179 @@ mod tests {
         Ok(())
     }
 
+    #[test]
+    fn test_3_by_3() {
+        let input = parse_image_to_normalized(
+            "
+            ... x.. x..
+            ... x.. x..
+            ... x.. x..
+
+            xxx xxx xxx
+            ... x.. x..
+            ... x.. x..
+
+            xxx xxx xxx
+            ... x.. x..
+            ... x.. x..
+        ",
+        );
+
+        let expected = parse_image_to_normalized(
+            "
+            ... .. ..
+            ... .. ..
+            ... .. ..
+
+            ... .. ..
+            ... .. ..
+
+            ... .. ..
+            ... .. ..
+        ",
+        );
+
+        let actual = trim_tiles(&input);
+
+        assert_eq!(
+            expected,
+            actual,
+            "\nexpected:\n{}\n\nactual:\n{}",
+            format_normalized(&expected),
+            format_normalized(&actual)
+        );
+    }
+
+    #[test]
+    fn test_parse_image_to_normalized_one_tile() {
+        let actual = parse_image_to_normalized(
+            "
+          ...
+          ...
+          ...
+        ",
+        );
+
+        #[rustfmt::skip]
+        let expected = s(vec![vec![vec![
+            "...",
+            "...",
+            "...",
+        ]]]);
+
+        assert_eq!(
+            expected,
+            actual,
+            "\nexpected:\n{}\n\nactual:\n{}",
+            format_normalized(&expected),
+            format_normalized(&actual)
+        );
+    }
+
+    #[test]
+    fn test_parse_image_to_normalized_4_tiny_tiles() {
+        let actual = parse_image_to_normalized(
+            "
+          . .
+
+          . .
+        ",
+        );
+
+        #[rustfmt::skip]
+        let expected = s(vec![
+            vec![vec!["."], vec!["."]],
+            vec![vec!["."], vec!["."]],
+        ]);
+
+        assert_eq!(
+            expected,
+            actual,
+            "\nexpected:\n{}\n\nactual:\n{}",
+            format_normalized(&expected),
+            format_normalized(&actual)
+        );
+    }
+
+    #[test]
+    fn test_example_1() {
+        let input_str = fs::read_to_string("./test-data/example-ordered.txt").unwrap();
+        let input = parse_image_to_normalized(&input_str);
+        let actual = trim_tiles(&input);
+
+        let expected_str = fs::read_to_string("./test-data/example-ordered-trimmed.txt").unwrap();
+        let expected = parse_image_to_normalized(&expected_str);
+
+        assert_eq!(
+            expected,
+            actual,
+            "\nexpected:\n{}\n\nactual:\n{}",
+            format_normalized(&expected),
+            format_normalized(&actual)
+        );
+    }
+
+    fn s(input: Vec<Vec<Vec<&str>>>) -> Vec<Vec<Vec<String>>> {
+        stringify_normalized(input)
+    }
+
+    fn stringify_normalized(input: Vec<Vec<Vec<&str>>>) -> Vec<Vec<Vec<String>>> {
+        input.iter().map(stringify_tile_row).collect()
+    }
+
+    fn stringify_tile_row(input: &Vec<Vec<&str>>) -> Vec<Vec<String>> {
+        input.iter().map(stringify_tile).collect()
+    }
+
+    fn stringify_tile(input: &Vec<&str>) -> Vec<String> {
+        input.iter().map(|l| l.to_string()).collect()
+    }
+
+    fn parse_image_to_normalized(input: &str) -> Vec<Vec<Vec<String>>> {
+        let input = cleanup(input);
+        let lines: Vec<&str> = input.lines().collect();
+        let first_line = lines.first().unwrap();
+        let dimensions = first_line.chars().filter(|&c| c == ' ').count() + 1;
+
+        let mut tiles: Vec<Vec<Vec<String>>> = Vec::new();
+        let mut tile_row = new_tile_row(dimensions);
+
+        for line in lines {
+            if line.is_empty() {
+                tiles.push(tile_row);
+                tile_row = new_tile_row(dimensions);
+                continue;
+            }
+
+            for (tile, chunk) in tile_row.iter_mut().zip(line.split(' ')) {
+                tile.push(chunk.to_string());
+            }
+        }
+
+        tiles.push(tile_row);
+
+        return tiles;
+    }
+
+    fn new_tile_row(num_tiles: usize) -> Vec<Vec<String>> {
+        let mut tile_row: Vec<Vec<String>> = Vec::new();
+
+        for _ in 0..num_tiles {
+            tile_row.push(Vec::new());
+        }
+
+        tile_row
+    }
+
     fn cleanup(input: &str) -> String {
         input.trim().lines().map(|l| l.trim()).collect::<Vec<&str>>().join("\n")
+    }
+
+    fn format_normalized(input: &Vec<Vec<Vec<String>>>) -> String {
+        if input.is_empty() {
+            return "".into();
+        }
+
+        to_lines(&input).join("\n")
     }
 }

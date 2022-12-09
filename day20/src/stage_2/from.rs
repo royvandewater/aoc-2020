@@ -20,13 +20,6 @@ fn find_shared_edges(tiles: &Vec<Tile>) -> HashMap<String, HashSet<usize>> {
     let mut shared_edges = unique_edges.clone();
     shared_edges.retain(|_, tiles| tiles.len() > 1);
 
-    println!(
-        "Tiles: {}, unique edges: {}, shared edges: {}",
-        tiles.len(),
-        unique_edges.len(),
-        shared_edges.len(),
-    );
-
     return shared_edges;
 }
 
