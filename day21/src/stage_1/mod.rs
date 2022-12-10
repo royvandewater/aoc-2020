@@ -1,16 +1,38 @@
+use std::collections::HashSet;
+
 use crate::input::Food;
 
 mod allergen_map;
 mod from;
 
 pub struct Stage1 {
-    food: Vec<Food>,
+    foods: Vec<Food>,
 }
 
 impl Stage1 {
     pub fn answer(&self) -> usize {
-        let allergens = self.allergen_map();
-        self.food.len()
+        let all_ingredients: HashSet<String> = self
+            .foods
+            .iter()
+            .flat_map(|f| f.ingredients.clone())
+            .collect();
+
+        let ingredients_with_allergens: HashSet<String> = self
+            .allergen_map()
+            .iter()
+            .flat_map(|(_, ingredients)| ingredients.clone())
+            .collect();
+
+        let ingredients_without_allergens = all_ingredients.difference(&ingredients_with_allergens);
+
+        ingredients_without_allergens
+            .map(|ingredient| {
+                self.foods
+                    .iter()
+                    .filter(|f| f.ingredients.contains(ingredient))
+                    .count()
+            })
+            .sum()
     }
 }
 
@@ -22,7 +44,7 @@ mod tests {
 
     #[test]
     fn test_empty() {
-        let sut: Stage1 = Stage1 { food: Vec::new() };
+        let sut: Stage1 = Stage1 { foods: Vec::new() };
         assert_eq!(0, sut.answer());
     }
 
