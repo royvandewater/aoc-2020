@@ -17,8 +17,6 @@ fn main() {
     let stage_1_answer = Stage1::from(&input).answer();
     println!("Stage 1: {}", stage_1_answer);
 
-    let stage_2_answer = Stage2::from(&input)
-        .answer()
-        .expect("Error computing answer for stage 2");
-    println!("Stage 1: {}", stage_2_answer);
+    let stage_2_answer = Stage2::from(&input).answer();
+    println!("Stage 2: {}", stage_2_answer);
 }

@@ -22,5 +22,5 @@ fn main() {
     let stage_2_answer = Stage2::from(&input)
         .answer()
         .expect("Error computing answer for stage 2");
-    println!("Stage 1: {}", stage_2_answer);
+    println!("Stage 2: {}", stage_2_answer);
 }

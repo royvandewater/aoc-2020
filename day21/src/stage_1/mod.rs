@@ -11,28 +11,28 @@ pub struct Stage1 {
 
 impl Stage1 {
     pub fn answer(&self) -> usize {
-        let all_ingredients: HashSet<String> = self
-            .foods
+        self.ingredients_without_allergens()
             .iter()
-            .flat_map(|f| f.ingredients.clone())
-            .collect();
+            .map(|ingredient| self.foods.iter().filter(|f| f.ingredients.contains(ingredient)).count())
+            .sum()
+    }
 
-        let ingredients_with_allergens: HashSet<String> = self
-            .allergen_map()
+    pub fn all_ingredients(&self) -> HashSet<String> {
+        self.foods.iter().flat_map(|f| f.ingredients.clone()).collect()
+    }
+
+    pub fn ingredients_without_allergens(&self) -> HashSet<String> {
+        self.all_ingredients()
+            .difference(&self.ingredients_with_allergens())
+            .map(|s| s.to_string())
+            .collect()
+    }
+
+    pub fn ingredients_with_allergens(&self) -> HashSet<String> {
+        self.allergen_map()
             .iter()
             .flat_map(|(_, ingredients)| ingredients.clone())
-            .collect();
-
-        let ingredients_without_allergens = all_ingredients.difference(&ingredients_with_allergens);
-
-        ingredients_without_allergens
-            .map(|ingredient| {
-                self.foods
-                    .iter()
-                    .filter(|f| f.ingredients.contains(ingredient))
-                    .count()
-            })
-            .sum()
+            .collect()
     }
 }
 
