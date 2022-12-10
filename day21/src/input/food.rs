@@ -1,5 +1,6 @@
 use std::{collections::HashSet, str::FromStr};
 
+#[derive(Clone)]
 pub struct Food {
     pub ingredients: HashSet<String>,
     pub allergens: HashSet<String>,
