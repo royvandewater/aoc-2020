@@ -1,7 +1,6 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use rustc_hash::FxHasher;
+use std::collections::{HashSet, VecDeque};
 use std::hash::Hash;
-
-use std::collections::hash_map::DefaultHasher;
 use std::hash::Hasher;
 
 #[derive(Debug, PartialEq)]
@@ -17,37 +16,23 @@ pub struct State {
 }
 
 pub fn game(deck_1: Vec<usize>, deck_2: Vec<usize>) -> (Winner, Vec<usize>) {
-    let (winner, deck) = game_inner(deck_1.into(), deck_2.into(), &mut HashMap::new());
+    let (winner, deck) = game_inner(deck_1.into(), deck_2.into());
 
     (winner, deck.into())
 }
 
 fn calculate_hash<T: Hash>(t: &T) -> u64 {
-    let mut s = DefaultHasher::new();
+    let mut s = FxHasher::default();
     t.hash(&mut s);
     s.finish()
 }
 
-fn game_inner(
-    mut deck_1: VecDeque<usize>,
-    mut deck_2: VecDeque<usize>,
-    mut known_games: &mut HashMap<u64, Winner>,
-) -> (Winner, VecDeque<usize>) {
-    let game_state = calculate_hash(&(&deck_1, &deck_2));
-
-    if let Some(winner) = known_games.get(&game_state) {
-        return match winner {
-            Winner::Player1 => (Winner::Player1, deck_1),
-            Winner::Player2 => (Winner::Player2, deck_2),
-        };
-    }
-
+fn game_inner(mut deck_1: VecDeque<usize>, mut deck_2: VecDeque<usize>) -> (Winner, VecDeque<usize>) {
     let mut known_states: HashSet<u64> = HashSet::new();
 
     loop {
         let state = calculate_hash(&(&deck_1, &deck_2));
         if known_states.contains(&state) {
-            known_games.insert(game_state, Winner::Player1);
             return (Winner::Player1, deck_1);
         }
         known_states.insert(state);
@@ -60,7 +45,6 @@ fn game_inner(
                 game_inner(
                     deck_1.iter().take(card_1).cloned().collect(),
                     deck_2.iter().take(card_2).cloned().collect(),
-                    &mut known_games,
                 )
                 .0
             }
@@ -79,12 +63,10 @@ fn game_inner(
         }
 
         if deck_2.is_empty() {
-            known_games.insert(game_state, Winner::Player1);
             return (Winner::Player1, deck_1.into());
         }
 
         if deck_1.is_empty() {
-            known_games.insert(game_state, Winner::Player2);
             return (Winner::Player2, deck_2.into());
         }
     }
