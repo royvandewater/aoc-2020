@@ -30,16 +30,14 @@ fn game_inner(
     if known_states.contains(&state) {
         return (Winner::Player1, deck_1);
     }
+    known_states.insert(state);
 
     let card_1 = deck_1.pop_front().unwrap();
     let card_2 = deck_2.pop_front().unwrap();
 
     let winner = match both_players_have_enough_cards(&card_1, &deck_1, &card_2, &deck_2) {
         true => game_inner(deck_1.clone(), deck_2.clone(), HashSet::new()).0,
-        false => {
-            known_states.insert(state);
-            single_round(&card_1, &card_2)
-        }
+        false => single_round(&card_1, &card_2),
     };
 
     match winner {
