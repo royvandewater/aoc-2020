@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use crate::{input::Input, vec_to_hash_map::vec_to_hash_map};
+use crate::{convert::vec_to_hash_map, input::Input};
 
 use super::Stage2;
 

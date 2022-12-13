@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::round::round;
+use crate::{convert::hash_map_to_vec, round::round};
 
 mod from;
 
@@ -23,13 +23,12 @@ impl Stage1 {
 }
 
 fn cups_to_string(cups: HashMap<usize, usize>) -> String {
-    let mut result = "".to_string();
-    let mut current = 1;
+    let cups_vec = hash_map_to_vec(&cups);
 
-    for _ in 0..cups.len() - 1 {
-        let &next = cups.get(&current).unwrap();
-        result = format!("{}{}", result, next);
-        current = next;
+    let mut result = "".to_string();
+
+    for cup in cups_vec.iter().skip(1) {
+        result = format!("{}{}", result, cup);
     }
 
     return result;
@@ -37,6 +36,8 @@ fn cups_to_string(cups: HashMap<usize, usize>) -> String {
 
 #[cfg(test)]
 mod tests {
+    use crate::convert::vec_to_hash_map;
+
     use super::*;
 
     #[test]
@@ -47,9 +48,23 @@ mod tests {
     }
 
     #[test]
-    fn test_cards_to_string() {
-        let sut = Stage1::from([3, 8, 9, 1, 2, 5, 4, 6, 7]);
+    fn test_cards_to_string_example_1() {
+        let input = vec_to_hash_map(&vec![5, 8, 3, 7, 4, 1, 9, 2, 6]);
 
-        assert_eq!("92658374", cups_to_string(sut.cups))
+        assert_eq!("92658374", cups_to_string(input))
+    }
+
+    #[test]
+    fn test_cards_to_string_simple() {
+        let input = vec_to_hash_map(&vec![1, 2, 3]);
+
+        assert_eq!("23", cups_to_string(input))
+    }
+
+    #[test]
+    fn test_cards_to_string_simple_reordered() {
+        let input = vec_to_hash_map(&vec![3, 1, 2]);
+
+        assert_eq!("23", cups_to_string(input))
     }
 }

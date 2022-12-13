@@ -37,3 +37,21 @@ fn decrement(max: usize, current: usize) -> usize {
         _ => current - 1,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::convert::{hash_map_to_vec, vec_to_hash_map};
+
+    use super::*;
+
+    #[test]
+    fn test_example_1_round_1() {
+        let current = 3;
+        let cups = vec_to_hash_map(&vec![3, 8, 9, 1, 2, 5, 4, 6, 7]);
+
+        let (current, cups) = round(9, current, cups);
+
+        assert_eq!(2, current);
+        assert_eq!(vec![1, 5, 4, 6, 7, 3, 2, 8, 9], hash_map_to_vec(&cups));
+    }
+}
