@@ -5,9 +5,9 @@ pub fn round(
     current: usize,
     mut cups: HashMap<usize, usize>,
 ) -> (usize, HashMap<usize, usize>) {
-    let &first = cups.get(&current).unwrap();
-    let &second = cups.get(&first).unwrap();
-    let &third = cups.get(&second).unwrap();
+    let first = pop_after(&mut cups, current);
+    let second = pop_after(&mut cups, current);
+    let third = pop_after(&mut cups, current);
 
     let picked_up = vec![first, second, third];
     let destination = get_destination(max, current, &picked_up);
@@ -19,6 +19,14 @@ pub fn round(
     let &next = cups.get(&current).unwrap();
 
     return (next, cups);
+}
+
+fn pop_after(cups: &mut HashMap<usize, usize>, position: usize) -> usize {
+    let &next = cups.get(&position).unwrap();
+    let &next_next = cups.get(&next).unwrap();
+    cups.insert(position, next_next);
+
+    return next;
 }
 
 fn get_destination(max: usize, current: usize, picked_up: &Vec<usize>) -> usize {
@@ -51,7 +59,7 @@ mod tests {
 
         let (current, cups) = round(9, current, cups);
 
-        assert_eq!(2, current);
         assert_eq!(vec![1, 5, 4, 6, 7, 3, 2, 8, 9], hash_map_to_vec(&cups));
+        assert_eq!(2, current);
     }
 }
