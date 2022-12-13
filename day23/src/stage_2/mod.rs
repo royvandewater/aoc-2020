@@ -1,32 +1,33 @@
-use std::collections::VecDeque;
+use std::collections::HashMap;
+
+use crate::round::round;
 
 mod from;
-mod round;
 
-pub struct Stage2(VecDeque<usize>);
+pub struct Stage2 {
+    cups: HashMap<usize, usize>,
+    start: usize,
+}
 
-const TEN_MILLION: usize = 10 * 1000 * 1000;
+const ONE_MILLION: usize = 1000 * 1000;
+const TEN_MILLION: usize = 10 * ONE_MILLION;
 
 impl Stage2 {
     pub fn answer(&self) -> usize {
-        let mut cups = self.0.iter().cloned().collect();
+        let mut cups = self.cups.clone();
+        let mut current = self.start;
 
         for _ in 0..TEN_MILLION {
-            println!(".");
-            cups = round::round(cups);
+            (current, cups) = round(ONE_MILLION, current, cups);
         }
 
         find_product(cups)
     }
 }
 
-fn find_product(mut cups: VecDeque<usize>) -> usize {
-    while cups.front().unwrap() != &1 {
-        cups.rotate_left(1);
-    }
-
-    let second = cups.get(1).unwrap();
-    let third = cups.get(1).unwrap();
+fn find_product(cups: HashMap<usize, usize>) -> usize {
+    let second = cups.get(&1).unwrap();
+    let third = cups.get(second).unwrap();
 
     second * third
 }

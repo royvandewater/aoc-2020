@@ -1,8 +1,10 @@
 extern crate derive_error;
 
 mod input;
+mod round;
 mod stage_1;
 mod stage_2;
+mod vec_to_hash_map;
 
 use std::fs;
 
