@@ -1,6 +1,6 @@
-use std::str::FromStr;
+use std::{slice::Iter, str::FromStr};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Direction {
     East,
     SouthEast,
@@ -10,10 +10,16 @@ pub enum Direction {
     NorthEast,
 }
 
+const TWO_CHAR_DIRECTIONS: [&str; 4] = ["se", "sw", "nw", "ne"];
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Instruction(Vec<Direction>);
 
-const TWO_CHAR_DIRECTIONS: [&str; 4] = ["se", "sw", "nw", "ne"];
+impl Instruction {
+    pub fn iter(&self) -> Iter<Direction> {
+        self.0.iter()
+    }
+}
 
 impl FromStr for Instruction {
     type Err = String;
@@ -51,6 +57,12 @@ impl FromStr for Instruction {
 impl From<Vec<Direction>> for Instruction {
     fn from(directions: Vec<Direction>) -> Self {
         Instruction(directions)
+    }
+}
+
+impl From<&Vec<Direction>> for Instruction {
+    fn from(directions: &Vec<Direction>) -> Self {
+        Instruction(directions.clone())
     }
 }
 

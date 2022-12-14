@@ -14,9 +14,7 @@ fn main() {
     let input_str = fs::read_to_string("./input.txt").expect("could not read ./input.txt");
     let input: Input = input_str.parse().expect("could not parse input as Input");
 
-    let stage_1_answer = Stage1::from(&input)
-        .answer()
-        .expect("Error computing answer for stage 1");
+    let stage_1_answer = Stage1::from(&input).answer();
     println!("Stage 1: {}", stage_1_answer);
 
     let stage_2_answer = Stage2::from(&input)

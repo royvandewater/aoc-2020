@@ -2,7 +2,7 @@ mod instruction;
 
 use std::{slice::Iter, str::FromStr};
 
-use self::instruction::{Direction, Instruction};
+pub use self::instruction::{Direction, Instruction};
 
 #[derive(Debug, PartialEq)]
 pub struct Input(Vec<Instruction>);
@@ -28,6 +28,13 @@ impl FromStr for Input {
 
 impl<const N: usize, const M: usize> From<[[Direction; M]; N]> for Input {
     fn from(input: [[Direction; M]; N]) -> Self {
+        let instructions = input.iter().map(Instruction::from).collect();
+        Input(instructions)
+    }
+}
+
+impl<const N: usize> From<[Vec<Direction>; N]> for Input {
+    fn from(input: [Vec<Direction>; N]) -> Self {
         let instructions = input.iter().map(Instruction::from).collect();
         Input(instructions)
     }
