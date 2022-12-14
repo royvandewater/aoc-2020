@@ -60,6 +60,12 @@ impl<const N: usize> From<[Direction; N]> for Instruction {
     }
 }
 
+impl<const N: usize> From<&[Direction; N]> for Instruction {
+    fn from(directions: &[Direction; N]) -> Self {
+        Instruction(Vec::from(directions.clone()))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

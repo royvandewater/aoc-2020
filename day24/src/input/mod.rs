@@ -2,8 +2,9 @@ mod instruction;
 
 use std::{slice::Iter, str::FromStr};
 
-use self::instruction::Instruction;
+use self::instruction::{Direction, Instruction};
 
+#[derive(Debug, PartialEq)]
 pub struct Input(Vec<Instruction>);
 
 impl Input {
@@ -25,6 +26,13 @@ impl FromStr for Input {
     }
 }
 
+impl<const N: usize, const M: usize> From<[[Direction; M]; N]> for Input {
+    fn from(input: [[Direction; M]; N]) -> Self {
+        let instructions = input.iter().map(Instruction::from).collect();
+        Input(instructions)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{instruction::Direction, *};
@@ -40,11 +48,7 @@ mod tests {
     #[test]
     fn test_single_line() {
         let sut: Input = "esenee".parse().unwrap();
-        let actual: Vec<Instruction> = sut.iter().cloned().collect();
 
-        assert_eq!(
-            vec![Instruction::from([East, SouthEast, NorthEast, East])],
-            actual
-        )
+        assert_eq!(Input::from([[East, SouthEast, NorthEast, East]]), sut)
     }
 }
