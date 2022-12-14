@@ -2,6 +2,12 @@ use crate::input::{Direction, Input, Instruction};
 
 use super::Stage1;
 
+impl From<Input> for Stage1 {
+    fn from(input: Input) -> Self {
+        Stage1::from(&input)
+    }
+}
+
 impl From<&Input> for Stage1 {
     fn from(input: &Input) -> Self {
         let instructions: Vec<Instruction> = input.iter().cloned().collect();

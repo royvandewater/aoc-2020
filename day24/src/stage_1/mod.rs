@@ -7,53 +7,55 @@ mod from_str;
 
 pub struct Stage1(Vec<Instruction>);
 
-type Position = (isize, isize);
+type Position = (isize, isize, isize);
 
 impl Stage1 {
     pub fn answer(&self) -> usize {
         let black_tiles = self
             .0
             .iter()
-            .fold(HashSet::<Position>::new(), apply_instruction);
+            .map(resolve_position)
+            .fold(HashSet::<Position>::new(), apply_position);
+
         return black_tiles.len();
     }
 }
 
-fn apply_instruction(
-    mut black_tiles: HashSet<Position>,
-    instruction: &Instruction,
-) -> HashSet<Position> {
-    let position: Position = resolve_position(instruction);
-
+fn apply_position(mut black_tiles: HashSet<Position>, position: Position) -> HashSet<Position> {
     match black_tiles.contains(&position) {
         true => black_tiles.remove(&position),
-        false => black_tiles.insert(position),
+        false => black_tiles.insert(position.clone()),
     };
 
     return black_tiles;
 }
 
 fn resolve_position(instruction: &Instruction) -> Position {
-    instruction.iter().fold((0, 0), apply_direction)
+    instruction.iter().fold((0, 0, 0), apply_direction)
 }
 
 fn apply_direction(position: Position, &direction: &Direction) -> Position {
-    let (x, y) = position;
+    let (q, r, s) = position;
 
     match direction {
-        Direction::East => (x + 1, y),
-        Direction::SouthEast => (x, y - 1),
-        Direction::SouthWest => (x - 1, y - 1),
-        Direction::West => (x - 1, y),
-        Direction::NorthWest => (x - 1, y + 1),
-        Direction::NorthEast => (x, y + 1),
+        Direction::East => (q + 1, r, s - 1),
+        Direction::SouthEast => (q, r + 1, s - 1),
+        Direction::SouthWest => (q - 1, r + 1, s),
+        Direction::West => (q - 1, r, s + 1),
+        Direction::NorthWest => (q, r - 1, s + 1),
+        Direction::NorthEast => (q + 1, r - 1, s),
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
+
     use super::*;
-    use crate::input::Direction::{self, *};
+    use crate::input::{
+        Direction::{self, *},
+        Input,
+    };
 
     #[test]
     fn test_empty() {
@@ -110,5 +112,15 @@ mod tests {
             .unwrap();
 
         assert_eq!(10, sut.answer())
+    }
+
+    #[test]
+    fn test_puzzle_input() {
+        let input_str = fs::read_to_string("./input.txt").expect("could not read ./input.txt");
+        let input: Input = input_str.parse().expect("could not parse input as Input");
+        let sut: Stage1 = input.into();
+
+        assert!(315 < sut.answer(), "assert! 315 < '{}'", sut.answer());
+        assert!(sut.answer() < 470, "assert! '{}' < 470 ", sut.answer());
     }
 }
