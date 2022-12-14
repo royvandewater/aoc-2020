@@ -1,7 +1,7 @@
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 
-pub fn vec_to_hash_map(cups_vec: &Vec<usize>) -> HashMap<usize, usize> {
-    let mut cups = HashMap::new();
+pub fn vec_to_hash_map(cups_vec: &Vec<usize>) -> FxHashMap<usize, usize> {
+    let mut cups = FxHashMap::default();
     for (i, &cup) in cups_vec.iter().enumerate() {
         let &next_cup = cups_vec.get(i + 1).or(cups_vec.first()).unwrap();
         cups.insert(cup, next_cup);
@@ -9,7 +9,7 @@ pub fn vec_to_hash_map(cups_vec: &Vec<usize>) -> HashMap<usize, usize> {
     cups
 }
 
-pub fn hash_map_to_vec(cups: &HashMap<usize, usize>) -> Vec<usize> {
+pub fn hash_map_to_vec(cups: &FxHashMap<usize, usize>) -> Vec<usize> {
     let mut result = vec![1];
     let mut current = 1;
 
@@ -31,7 +31,10 @@ mod tests {
     #[test]
     fn test_vec_to_hash_map_simple() {
         let actual = vec_to_hash_map(&vec![1, 2, 3]);
-        let expected = HashMap::from([(1, 2), (2, 3), (3, 1)]);
+        let mut expected = FxHashMap::default();
+        expected.insert(1, 2);
+        expected.insert(2, 3);
+        expected.insert(3, 1);
 
         assert_eq!(expected, actual);
     }
@@ -39,7 +42,10 @@ mod tests {
     #[test]
     fn test_vec_to_hash_map_simple_reordered() {
         let actual = vec_to_hash_map(&vec![3, 1, 2]);
-        let expected = HashMap::from([(1, 2), (2, 3), (3, 1)]);
+        let mut expected = FxHashMap::default();
+        expected.insert(1, 2);
+        expected.insert(2, 3);
+        expected.insert(3, 1);
 
         assert_eq!(expected, actual);
     }

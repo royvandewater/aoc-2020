@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 
 pub fn round(
     max: usize,
     current: usize,
-    mut cups: HashMap<usize, usize>,
-) -> (usize, HashMap<usize, usize>) {
+    mut cups: FxHashMap<usize, usize>,
+) -> (usize, FxHashMap<usize, usize>) {
     let first = pop_after(&mut cups, current);
     let second = pop_after(&mut cups, current);
     let third = pop_after(&mut cups, current);
@@ -21,7 +21,7 @@ pub fn round(
     return (next, cups);
 }
 
-fn pop_after(cups: &mut HashMap<usize, usize>, position: usize) -> usize {
+fn pop_after(cups: &mut FxHashMap<usize, usize>, position: usize) -> usize {
     let &next = cups.get(&position).unwrap();
     let &next_next = cups.get(&next).unwrap();
     cups.insert(position, next_next);

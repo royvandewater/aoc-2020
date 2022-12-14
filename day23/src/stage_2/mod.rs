@@ -1,11 +1,11 @@
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 
 use crate::round::round;
 
 mod from;
 
 pub struct Stage2 {
-    cups: HashMap<usize, usize>,
+    cups: FxHashMap<usize, usize>,
     start: usize,
 }
 
@@ -25,7 +25,7 @@ impl Stage2 {
     }
 }
 
-fn find_product(cups: HashMap<usize, usize>) -> usize {
+fn find_product(cups: FxHashMap<usize, usize>) -> usize {
     let second = cups.get(&1).unwrap();
     let third = cups.get(second).unwrap();
 

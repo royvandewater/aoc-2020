@@ -1,11 +1,11 @@
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 
 use crate::{convert::hash_map_to_vec, round::round};
 
 mod from;
 
 pub struct Stage1 {
-    cups: HashMap<usize, usize>,
+    cups: FxHashMap<usize, usize>,
     start: usize,
 }
 
@@ -22,7 +22,7 @@ impl Stage1 {
     }
 }
 
-fn cups_to_string(cups: HashMap<usize, usize>) -> String {
+fn cups_to_string(cups: FxHashMap<usize, usize>) -> String {
     let cups_vec = hash_map_to_vec(&cups);
 
     let mut result = "".to_string();
