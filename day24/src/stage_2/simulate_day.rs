@@ -1,23 +1,23 @@
-use std::collections::HashSet;
+use rustc_hash::FxHashSet;
 
 type Position = (isize, isize, isize);
 
-pub fn simulate_day(black_tiles: HashSet<Position>, _: usize) -> HashSet<Position> {
-    let neighbors_of_black_tiles: HashSet<Position> =
+pub fn simulate_day(black_tiles: FxHashSet<Position>, _: usize) -> FxHashSet<Position> {
+    let neighbors_of_black_tiles: FxHashSet<Position> =
         black_tiles.iter().flat_map(find_neighbors).collect();
 
-    let white_tiles: HashSet<Position> = neighbors_of_black_tiles
+    let white_tiles: FxHashSet<Position> = neighbors_of_black_tiles
         .difference(&black_tiles)
         .cloned()
         .collect();
 
-    let retained_black_tiles: HashSet<Position> = black_tiles
+    let retained_black_tiles: FxHashSet<Position> = black_tiles
         .iter()
         .filter(|position| tile_stays_black(&black_tiles, position))
         .cloned()
         .collect();
 
-    let new_black_tiles: HashSet<Position> = white_tiles
+    let new_black_tiles: FxHashSet<Position> = white_tiles
         .iter()
         .filter(|position| white_tile_turns_black(&black_tiles, position))
         .cloned()
@@ -29,7 +29,7 @@ pub fn simulate_day(black_tiles: HashSet<Position>, _: usize) -> HashSet<Positio
         .collect()
 }
 
-fn tile_stays_black(black_tiles: &HashSet<Position>, position: &Position) -> bool {
+fn tile_stays_black(black_tiles: &FxHashSet<Position>, position: &Position) -> bool {
     let num_black_tiles_adjacent = find_neighbors(position)
         .iter()
         .filter(|neighbor| black_tiles.contains(neighbor))
@@ -42,7 +42,7 @@ fn tile_stays_black(black_tiles: &HashSet<Position>, position: &Position) -> boo
     }
 }
 
-fn white_tile_turns_black(black_tiles: &HashSet<Position>, position: &Position) -> bool {
+fn white_tile_turns_black(black_tiles: &FxHashSet<Position>, position: &Position) -> bool {
     let num_black_tiles_adjacent = find_neighbors(position)
         .iter()
         .filter(|neighbor| black_tiles.contains(neighbor))
@@ -63,7 +63,7 @@ const NEIGHBOR_OFFSETS: [Position; 6] = [
     (1, -1, 0),
 ];
 
-fn find_neighbors(position: &Position) -> HashSet<Position> {
+fn find_neighbors(position: &Position) -> FxHashSet<Position> {
     NEIGHBOR_OFFSETS
         .iter()
         .map(|offset| apply_offset(position, offset))
@@ -85,28 +85,36 @@ mod tests {
 
     #[test]
     fn test_empty() {
-        let input = HashSet::new();
+        let input = FxHashSet::default();
         let output = simulate_day(input, IGNORED);
 
-        assert_eq!(HashSet::new(), output);
+        assert_eq!(FxHashSet::default(), output);
     }
 
     #[test]
     fn test_one_tile() {
-        let input = HashSet::from([(0, 0, 0)]);
+        let mut input = FxHashSet::default();
+        input.insert((0, 0, 0));
+
         let output = simulate_day(input, IGNORED);
 
-        assert_eq!(HashSet::new(), output);
+        assert_eq!(FxHashSet::default(), output);
     }
 
     #[test]
     fn test_two_neighboring_tiles() {
-        let input = HashSet::from([(0, 0, 0), (-1, 0, 1)]);
+        let mut input = FxHashSet::default();
+        input.insert((0, 0, 0));
+        input.insert((-1, 0, 1));
+
         let output = simulate_day(input, IGNORED);
 
-        assert_eq!(
-            HashSet::from([(0, 0, 0), (-1, 0, 1), (0, -1, 1), (-1, 1, 0)]),
-            output
-        );
+        let mut expected = FxHashSet::default();
+        expected.insert((0, 0, 0));
+        expected.insert((-1, 0, 1));
+        expected.insert((0, -1, 1));
+        expected.insert((-1, 1, 0));
+
+        assert_eq!(expected, output);
     }
 }

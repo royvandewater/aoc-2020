@@ -2,12 +2,12 @@ mod from;
 mod from_str;
 mod simulate_day;
 
+use rustc_hash::FxHashSet;
 use simulate_day::simulate_day;
-use std::collections::HashSet;
 
 type Position = (isize, isize, isize);
 
-pub struct Stage2(HashSet<Position>);
+pub struct Stage2(FxHashSet<Position>);
 
 impl Stage2 {
     pub fn answer(&self) -> usize {

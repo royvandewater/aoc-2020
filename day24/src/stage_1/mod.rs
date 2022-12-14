@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use rustc_hash::FxHashSet;
 
 use crate::input::{Direction, Instruction};
 
@@ -14,15 +14,15 @@ impl Stage1 {
         return self.black_tiles().len();
     }
 
-    pub fn black_tiles(&self) -> HashSet<Position> {
+    pub fn black_tiles(&self) -> FxHashSet<Position> {
         self.0
             .iter()
             .map(resolve_position)
-            .fold(HashSet::<Position>::new(), apply_position)
+            .fold(FxHashSet::<Position>::default(), apply_position)
     }
 }
 
-fn apply_position(mut black_tiles: HashSet<Position>, position: Position) -> HashSet<Position> {
+fn apply_position(mut black_tiles: FxHashSet<Position>, position: Position) -> FxHashSet<Position> {
     match black_tiles.contains(&position) {
         true => black_tiles.remove(&position),
         false => black_tiles.insert(position.clone()),
