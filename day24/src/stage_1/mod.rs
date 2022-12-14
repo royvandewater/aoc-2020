@@ -11,13 +11,14 @@ type Position = (isize, isize, isize);
 
 impl Stage1 {
     pub fn answer(&self) -> usize {
-        let black_tiles = self
-            .0
+        return self.black_tiles().len();
+    }
+
+    pub fn black_tiles(&self) -> HashSet<Position> {
+        self.0
             .iter()
             .map(resolve_position)
-            .fold(HashSet::<Position>::new(), apply_position);
-
-        return black_tiles.len();
+            .fold(HashSet::<Position>::new(), apply_position)
     }
 }
 
